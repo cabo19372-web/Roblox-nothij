@@ -65,22 +65,14 @@ local Translations = {
 local function T(key) return Translations[Language][key] or key end
 
 -- ==========================================
--- CONFIG + PALETA PREMIUM
+-- CONFIG + PALETA
 -- ==========================================
 local Config = {
     Colors = { 
-        BG = Color3.fromRGB(8,6,16), 
-        Panel = Color3.fromRGB(16,12,28), 
-        Card = Color3.fromRGB(24,20,42), 
-        CardHover = Color3.fromRGB(34,28,58),
-        Accent = Color3.fromRGB(168,92,255), 
-        AccentLight = Color3.fromRGB(210,150,255),
-        AccentDim = Color3.fromRGB(110,50,180),
-        Text = Color3.fromRGB(245,240,255), 
-        TextDim = Color3.fromRGB(140,130,170), 
-        Danger = Color3.fromRGB(255,70,90),
-        Success = Color3.fromRGB(80,255,140),
-        Warning = Color3.fromRGB(255,200,80),
+        BG = Color3.fromRGB(8,6,16), Panel = Color3.fromRGB(16,12,28), Card = Color3.fromRGB(24,20,42), 
+        CardHover = Color3.fromRGB(34,28,58), Accent = Color3.fromRGB(168,92,255), AccentLight = Color3.fromRGB(210,150,255),
+        AccentDim = Color3.fromRGB(110,50,180), Text = Color3.fromRGB(245,240,255), TextDim = Color3.fromRGB(140,130,170), 
+        Danger = Color3.fromRGB(255,70,90), Success = Color3.fromRGB(80,255,140), Warning = Color3.fromRGB(255,200,80),
         ToggleOff = Color3.fromRGB(40,34,60) 
     },
     AimAssist=false, TeamCheck=true, LOSCheck=true, AutoPredict=true, TargetPart="Head", Priority=1, FOV=150, FOVCircle=true, FOVColorMode="RGB", Smoothness=50, Humanize=3, DistSmooth=true, LegitAim=false, CameraLock=false,
@@ -152,10 +144,10 @@ function SmartBoost:Mode_(m) if self.Mode==m then return end self.Mode=m if m~="
 function SmartBoost:Restore() self.Enabled=false self.Mode="NORMAL" for inst,props in pairs(self.Orig) do if inst and inst.Parent then for p,v in pairs(props) do pcall(function() inst[p]=v end) end end end self.Orig=setmetatable({},{__mode="k"}) end
 
 -- ==========================================
--- INTRO ULTRA CINEMATOGRÁFICA
+-- INTRO ULTRA-PREMIUM (7 CENAS)
 -- ==========================================
 local function PlayIntro(onComplete)
-    print("[VOID HUB] Iniciando introdução ULTRA CINEMATOGRÁFICA.")
+    print("[VOID HUB] Iniciando introdução ULTRA-PREMIUM.")
     for _, v in ipairs(PlayerGui:GetChildren()) do if v.Name == "VoidIntro" then v:Destroy() end end
 
     local completed = false
@@ -174,327 +166,438 @@ local function PlayIntro(onComplete)
         local vpW = math.max(vp.X, 1); local vpH = math.max(vp.Y, 1)
         local isMobile = vpW < 800
 
-        local function newFrame(props)
+        local function nF(props)
             local f = Instance.new("Frame"); f.BorderSizePixel = 0; f.BackgroundColor3 = Color3.new(0,0,0); f.BackgroundTransparency = 1
             for k, v in pairs(props or {}) do f[k] = v end
             f.Parent = IntroGui; return f
         end
-        local function newLabel(props)
+        local function nL(props)
             local t = Instance.new("TextLabel"); t.BackgroundTransparency = 1; t.BorderSizePixel = 0
             for k, v in pairs(props or {}) do t[k] = v end
             t.Parent = IntroGui; return t
         end
-        local function tw(obj, time, props, style, dir)
-            if not obj or not obj.Parent then return end
-            return TweenService:Create(obj, TweenInfo.new(time, style or Enum.EasingStyle.Quart, dir or Enum.EasingDirection.Out), props):Play()
+        local function tw(o, time, props, style, dir)
+            if not o or not o.Parent then return nil end
+            return TweenService:Create(o, TweenInfo.new(time, style or Enum.EasingStyle.Quart, dir or Enum.EasingDirection.Out), props):Play()
         end
+        local function cr(inst, r) local c = Instance.new("UICorner", inst); c.CornerRadius = UDim.new(0, r or 4); return c end
 
-        -- LAYER 0: BASE
-        local Bg = newFrame({Size=UDim2.new(1,0,1,0), BackgroundColor3=Color3.fromRGB(2,0,5), BackgroundTransparency=0, ZIndex=1})
+        -- CAMADA 0: BASE
+        local Bg = nF({Size=UDim2.new(1,0,1,0), BackgroundColor3=Color3.fromRGB(0,0,0), BackgroundTransparency=0, ZIndex=1})
 
-        -- LAYER 1: RADIAL VOID
-        local RadialBg = newFrame({Size=UDim2.new(1,0,1,0), BackgroundColor3=Color3.fromRGB(15,0,30), BackgroundTransparency=1, ZIndex=2})
+        -- CAMADA 1: RADIAL
+        local RadialBg = nF({Size=UDim2.new(1,0,1,0), BackgroundColor3=Color3.fromRGB(15,0,35), BackgroundTransparency=1, ZIndex=2})
         local RadialGrad = Instance.new("UIGradient", RadialBg)
         RadialGrad.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0.0, Color3.fromRGB(120,20,220)),
-            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(60,10,120)),
-            ColorSequenceKeypoint.new(0.6, Color3.fromRGB(25,5,50)),
+            ColorSequenceKeypoint.new(0.0, Color3.fromRGB(140,30,255)),
+            ColorSequenceKeypoint.new(0.15, Color3.fromRGB(90,15,180)),
+            ColorSequenceKeypoint.new(0.4, Color3.fromRGB(45,8,100)),
+            ColorSequenceKeypoint.new(0.7, Color3.fromRGB(20,3,50)),
             ColorSequenceKeypoint.new(1.0, Color3.new(0,0,0))
         })
 
-        -- LAYER 2: STARFIELD
-        local Stars = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=3})
+        -- CAMADA 2: STARFIELD
+        local StarsLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=3})
         local starData = {}
-        local starCount = isMobile and 50 or 85
+        local starCount = isMobile and 60 or 120
         for i = 1, starCount do
-            local size = math.random(1, 3)
-            local star = Instance.new("Frame", Stars)
-            star.Size = UDim2.new(0, size, 0, size)
-            star.Position = UDim2.new(math.random(), 0, math.random(), 0)
-            star.BackgroundColor3 = Color3.fromRGB(math.random(180, 255), math.random(180, 255), 255)
-            star.BackgroundTransparency = math.random(30, 80) / 100
-            star.BorderSizePixel = 0; star.ZIndex = 3
-            Instance.new("UICorner", star).CornerRadius = UDim.new(1,0)
-            starData[i] = {obj=star, speed=math.random(10, 40)/2000, baseX=star.Position.X.Scale}
+            local sz = math.random(1, 3)
+            local s = Instance.new("Frame", StarsLayer)
+            s.Size = UDim2.new(0, sz, 0, sz)
+            s.Position = UDim2.new(math.random(), 0, math.random(), 0)
+            local b = math.random(180, 255)
+            s.BackgroundColor3 = Color3.fromRGB(b, b, 255)
+            s.BackgroundTransparency = math.random(30, 85)/100
+            s.BorderSizePixel = 0; s.ZIndex = 3
+            cr(s, 100)
+            starData[i] = {obj=s, baseX=s.Position.X.Scale, baseY=s.Position.Y.Scale, spd=math.random(5,25)/1000, phase=math.random()*6.28}
         end
 
-        -- LAYER 3: RAYS
-        local Rays = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=4})
+        -- CAMADA 3: MATRIX RAIN
+        local MatrixLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=4})
+        local matrixCols = {}
+        local colCount = isMobile and 12 or 24
+        local chars = {"0","1","V","O","I","D","H","U","B","7","ᚠ","ᚢ","ᚦ","ᚨ","ᚱ","ᚲ","ᚷ","ᚹ","⚡","✧","◆","▣"}
+        for i = 1, colCount do
+            local colX = (i-1)/colCount
+            local drop = nF({Position=UDim2.new(colX, 0, -0.5, 0), ZIndex=4})
+            drop.Size = UDim2.new(0, 16, 0, 300)
+            local col = {obj=drop, chars={}, speed=math.random(120,280)/2000, offset=math.random()}
+            for j = 1, 12 do
+                local c = nL({Size=UDim2.new(1,0,0,18), Position=UDim2.new(0,0,j*18,0), Text=chars[math.random(#chars)], Font=Enum.Font.Code, TextSize=13, TextColor3=Color3.fromRGB(80,255,150), TextTransparency=0.6, ZIndex=4+j%3})
+                c.Parent = drop
+                col.chars[j] = c
+            end
+            matrixCols[i] = col
+        end
+
+        -- CAMADA 4: NEURAL NET
+        local NeuralLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=5})
+        local neuralNodes = {}; local neuralLines = {}
+        local nodeCount = isMobile and 12 or 20
+        for i = 1, nodeCount do
+            local x = 0.15 + math.random()*0.7; local y = 0.15 + math.random()*0.7
+            local node = Instance.new("Frame", NeuralLayer)
+            local sz = math.random(3, 6)
+            node.Size = UDim2.new(0, sz, 0, sz)
+            node.Position = UDim2.new(x, 0, y, 0)
+            node.BackgroundColor3 = Color3.fromRGB(168, 92, 255)
+            node.BackgroundTransparency = 1
+            node.BorderSizePixel = 0; node.ZIndex = 5
+            cr(node, 100)
+            neuralNodes[i] = {obj=node, px=x, py=y, phase=math.random()*6.28}
+        end
+        for i = 1, #neuralNodes do
+            for j = i+1, #neuralNodes do
+                local n1 = neuralNodes[i]; local n2 = neuralNodes[j]
+                local dx = (n1.px - n2.px) * vpW; local dy = (n1.py - n2.py) * vpH
+                local dist = math.sqrt(dx*dx + dy*dy)
+                if dist < 300 then
+                    local line = Instance.new("Frame", NeuralLayer)
+                    line.AnchorPoint = Vector2.new(0, 0.5)
+                    line.Position = UDim2.new(n1.px, 0, n1.py, 0)
+                    line.Size = UDim2.new(0, dist, 0, 1)
+                    line.Rotation = math.deg(math.atan2(dy, dx))
+                    line.BackgroundColor3 = Color3.fromRGB(168, 92, 255)
+                    line.BackgroundTransparency = 1
+                    line.BorderSizePixel = 0; line.ZIndex = 5
+                    table.insert(neuralLines, line)
+                end
+            end
+        end
+
+        -- CAMADA 5: PARTÍCULAS
+        local ParticleLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=6})
+        local particles = {}
+        local pCount = isMobile and 40 or 80
+        for i = 1, pCount do
+            local sz = math.random(2, 5)
+            local p = Instance.new("Frame", ParticleLayer)
+            p.Size = UDim2.new(0, sz, 0, sz)
+            p.Position = UDim2.new(0.5, 0, 0.5, 0)
+            p.BackgroundColor3 = Color3.fromRGB(math.random(180,240), math.random(100,160), 255)
+            p.BackgroundTransparency = 1
+            p.BorderSizePixel = 0; p.ZIndex = 6
+            cr(p, 100)
+            particles[i] = {obj=p, ang=math.random()*6.28, dist=math.random(280,1400), spd=math.random(100,280)}
+        end
+
+        -- CAMADA 6: RAIOS
+        local RaysLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=7})
         local rayData = {}
-        for i = 1, 24 do
-            local angle = (i / 24) * 360
-            local ray = Instance.new("Frame", Rays)
+        for i = 1, 30 do
+            local ang = (i/30)*360
+            local ray = Instance.new("Frame", RaysLayer)
             ray.AnchorPoint = Vector2.new(0.5, 0.5)
             ray.Position = UDim2.new(0.5, 0, 0.5, 0)
             ray.Size = UDim2.new(0, 2, 0, 0)
             ray.BackgroundColor3 = Color3.fromRGB(168, 92, 255)
             ray.BackgroundTransparency = 1
-            ray.BorderSizePixel = 0; ray.Rotation = angle; ray.ZIndex = 4
-            Instance.new("UICorner", ray).CornerRadius = UDim.new(1,0)
+            ray.BorderSizePixel = 0; ray.Rotation = ang; ray.ZIndex = 7
+            cr(ray, 100)
             rayData[i] = {obj=ray, delay=i*0.012}
         end
 
-        -- LAYER 4: EXPANDING CIRCLES
-        local CircleLayer = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=5})
-
-        -- LAYER 5: PARTICLES
-        local Particles = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=6})
-        local particleData = {}
-        local pCount = isMobile and 35 or 65
-        for i = 1, pCount do
-            local size = math.random(2, 5)
-            local p = Instance.new("Frame", Particles)
-            p.Size = UDim2.new(0, size, 0, size)
-            p.Position = UDim2.new(0.5, 0, 0.5, 0)
-            p.BackgroundColor3 = Color3.fromRGB(math.random(180, 240), math.random(100, 160), 255)
-            p.BackgroundTransparency = 1
-            p.BorderSizePixel = 0; p.ZIndex = 6
-            Instance.new("UICorner", p).CornerRadius = UDim.new(1,0)
-            particleData[i] = {obj=p, angle=math.random()*math.pi*2, dist=math.random(300, 1500), speed=math.random(50, 150)}
-        end
-
-        -- LAYER 6: GLITCH BARS
-        local GlitchLayer = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=7})
+        -- CAMADA 7: GLITCH
+        local GlitchLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=8})
         local glitchBars = {}
-        for i = 1, 8 do
+        for i = 1, 10 do
             local bar = Instance.new("Frame", GlitchLayer)
-            bar.Size = UDim2.new(0, 0, 0, math.random(2, 8))
+            bar.Size = UDim2.new(0, 0, 0, math.random(2, 10))
             bar.Position = UDim2.new(0, 0, math.random(), 0)
-            bar.BackgroundColor3 = Color3.fromRGB(math.random(100, 255), math.random(0, 100), 255)
-            bar.BorderSizePixel = 0; bar.BackgroundTransparency = 1; bar.ZIndex = 7
+            bar.BackgroundColor3 = Color3.fromRGB(math.random(100,255), math.random(0,120), 255)
+            bar.BorderSizePixel = 0; bar.BackgroundTransparency = 1; bar.ZIndex = 8
             glitchBars[i] = bar
         end
 
-        -- LAYER 7: SCANLINES
-        local Scanlines = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=8})
+        -- CAMADA 8: SCANLINES
+        local Scanlines = nF({Size=UDim2.new(1,0,1,0), ZIndex=9})
         for i = 0, 100 do
             local line = Instance.new("Frame", Scanlines)
             line.Size = UDim2.new(1, 0, 0, 1)
             line.Position = UDim2.new(0, 0, i/100, 0)
             line.BackgroundColor3 = Color3.new(0,0,0)
             line.BackgroundTransparency = 1
-            line.BorderSizePixel = 0; line.ZIndex = 8
+            line.BorderSizePixel = 0; line.ZIndex = 9
         end
 
-        -- LAYER 8: RINGS
-        local Portal = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=10})
+        -- CAMADA 9: RINGS
+        local Portal = nF({Size=UDim2.new(1,0,1,0), ZIndex=11})
         local rings = {}
         for i = 1, 5 do
-            local baseSize = 60 + i * 70
+            local baseSz = 50 + i * 65
             local ring = Instance.new("Frame", Portal)
             ring.AnchorPoint = Vector2.new(0.5, 0.5)
             ring.Position = UDim2.new(0.5, 0, 0.5, 0)
             ring.Size = UDim2.new(0, 0, 0, 0)
-            ring.BackgroundTransparency = 1; ring.BorderSizePixel = 0; ring.ZIndex = 10 + i
-            Instance.new("UICorner", ring).CornerRadius = UDim.new(1,0)
-            local stroke = Instance.new("UIStroke", ring)
-            stroke.Color = Color3.fromRGB(168 + i*5, 92 + i*10, 255)
-            stroke.Thickness = 3 - i*0.3
-            stroke.Transparency = 1
-            stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            ring.BackgroundTransparency = 1; ring.BorderSizePixel = 0; ring.ZIndex = 11 + i
+            cr(ring, 1000)
+            local stk = Instance.new("UIStroke", ring)
+            stk.Color = Color3.fromRGB(160 + i*10, 80 + i*12, 255)
+            stk.Thickness = 3.5 - i*0.4
+            stk.Transparency = 1
+            stk.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             local dot = Instance.new("Frame", ring)
             dot.AnchorPoint = Vector2.new(0.5, 0.5)
-            dot.Size = UDim2.new(0, 8, 0, 8)
+            dot.Size = UDim2.new(0, math.max(6, 10 - i), 0, math.max(6, 10 - i))
             dot.Position = UDim2.new(0.5, 0, 0, 0)
-            dot.BackgroundColor3 = Color3.fromRGB(220, 180, 255)
+            dot.BackgroundColor3 = Color3.fromRGB(230, 200, 255)
             dot.BackgroundTransparency = 1
-            dot.BorderSizePixel = 0; dot.ZIndex = 20 + i
-            Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
+            dot.BorderSizePixel = 0; dot.ZIndex = 21 + i
+            cr(dot, 100)
             local ds = Instance.new("UIStroke", dot)
-            ds.Color = Color3.fromRGB(255, 200, 255); ds.Thickness = 1.5; ds.Transparency = 1
-            rings[i] = {f=ring, s=stroke, dot=dot, ds=ds, baseSize=baseSize, rotSpd=math.random(20, 60)/100 * (i%2==0 and 1 or -1)}
+            ds.Color = Color3.fromRGB(255, 220, 255); ds.Thickness = 2; ds.Transparency = 1
+            rings[i] = {f=ring, s=stk, dot=dot, ds=ds, baseSz=baseSz, rotSpd=math.random(25,70)/100 * (i%2==0 and 1 or -1)}
         end
 
-        -- LAYER 9: CORE
+        -- CAMADA 10: CORE
         local Core = Instance.new("Frame", Portal)
         Core.AnchorPoint = Vector2.new(0.5, 0.5)
         Core.Position = UDim2.new(0.5, 0, 0.5, 0)
         Core.Size = UDim2.new(0, 0, 0, 0)
-        Core.BackgroundColor3 = Color3.fromRGB(200, 150, 255)
+        Core.BackgroundColor3 = Color3.fromRGB(220, 180, 255)
         Core.BackgroundTransparency = 1
-        Core.BorderSizePixel = 0; Core.ZIndex = 9
-        Instance.new("UICorner", Core).CornerRadius = UDim.new(1,0)
+        Core.BorderSizePixel = 0; Core.ZIndex = 10
+        cr(Core, 1000)
         local CoreGrad = Instance.new("UIGradient", Core)
-        CoreGrad.Color = ColorSequence.new(Color3.fromRGB(255,255,255), Color3.fromRGB(120,40,200))
+        CoreGrad.Color = ColorSequence.new(Color3.fromRGB(255,255,255), Color3.fromRGB(100,30,180))
         CoreGrad.Rotation = 45
         local CoreGlow = Instance.new("Frame", Core)
-        CoreGlow.Size = UDim2.new(2, 0, 2, 0)
-        CoreGlow.Position = UDim2.new(-0.5, 0, -0.5, 0)
+        CoreGlow.Size = UDim2.new(2.5, 0, 2.5, 0)
+        CoreGlow.Position = UDim2.new(-0.75, 0, -0.75, 0)
         CoreGlow.BackgroundColor3 = Color3.fromRGB(168, 92, 255)
         CoreGlow.BackgroundTransparency = 1
-        CoreGlow.BorderSizePixel = 0; CoreGlow.ZIndex = 8
-        Instance.new("UICorner", CoreGlow).CornerRadius = UDim.new(1,0)
+        CoreGlow.BorderSizePixel = 0; CoreGlow.ZIndex = 9
+        cr(CoreGlow, 1000)
         local CGG = Instance.new("UIGradient", CoreGlow)
         CGG.Transparency = NumberSequence.new({
             NumberSequenceKeypoint.new(0, 0),
-            NumberSequenceKeypoint.new(0.5, 0.5),
+            NumberSequenceKeypoint.new(0.5, 0.6),
             NumberSequenceKeypoint.new(1, 1)
         })
 
-        -- LAYER 10: TITLE
-        local TitleLayer = newFrame({Size=UDim2.new(1,0,0,180), Position=UDim2.new(0,0,0.5,-140), ZIndex=20})
-        local function makeTitle(color, zi)
-            local t = Instance.new("TextLabel", TitleLayer)
-            t.Size = UDim2.new(1,0,1,0); t.BackgroundTransparency = 1
-            t.Text = "VOID HUB"; t.TextColor3 = color
-            t.Font = Enum.Font.GothamBlack; t.TextSize = 120
-            t.TextTransparency = 1; t.TextScaled = false; t.ZIndex = zi
-            return t
+        -- CAMADA 11: RUNAS
+        local RunesLayer = nF({Size=UDim2.new(1,0,1,0), ZIndex=25})
+        local runes = {}
+        local runeSyms = {"ᚠ","ᚢ","ᚦ","ᚨ","ᚱ","ᚲ","ᚷ","ᚹ","ᚺ","ᚾ","ᛁ","ᛃ"}
+        for i = 1, 12 do
+            local ang = (i/12)*6.28
+            local r = nL({Size=UDim2.new(0, 40, 0, 40), Position=UDim2.new(0.5, math.cos(ang)*240 - 20, 0.5, math.sin(ang)*240 - 20), Text=runeSyms[i], Font=Enum.Font.GothamBold, TextSize=22, TextColor3=Color3.fromRGB(200, 150, 255), TextTransparency=1, ZIndex=25})
+            local rs = Instance.new("UIStroke", r)
+            rs.Color = Color3.fromRGB(168, 92, 255); rs.Thickness = 1; rs.Transparency = 1
+            runes[i] = {obj=r, st=rs, ang=ang}
         end
-        local MT_R = makeTitle(Color3.fromRGB(255, 40, 100), 18)
-        local MT_B = makeTitle(Color3.fromRGB(50, 160, 255), 18)
-        local MT = makeTitle(Color3.fromRGB(245, 220, 255), 22)
-        local MTGrad = Instance.new("UIGradient", MT)
-        MTGrad.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 230, 255)),
-            ColorSequenceKeypoint.new(0.4, Color3.fromRGB(200, 120, 255)),
-            ColorSequenceKeypoint.new(0.7, Color3.fromRGB(140, 60, 220)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 255))
-        })
-        MTGrad.Rotation = 30
-        local MTStroke = Instance.new("UIStroke", MT)
-        MTStroke.Color = Color3.fromRGB(168, 92, 255); MTStroke.Thickness = 4; MTStroke.Transparency = 1
-        MTStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 
-        -- LAYER 11: SUBTITLE
-        local Subtitle = newLabel({Size=UDim2.new(1,0,0,26), Position=UDim2.new(0,0,0.5,60), Text="", TextColor3=Color3.fromRGB(220,190,255), Font=Enum.Font.GothamBold, TextSize=16, TextTransparency=1, ZIndex=23})
+        -- CAMADA 12: LOGO LETRA POR LETRA
+        local LogoCont = nF({Size=UDim2.new(1,0,0,180), Position=UDim2.new(0,0,0.5,-150), ZIndex=22})
+        local logoText = "VOID HUB"
+        local letters = {}
+        local baseSz = math.min(130, vpW/9)
+        local totalW = 0
+        local wids = {}
+        for i = 1, #logoText do
+            local ch = string.sub(logoText, i, i)
+            local w = (ch == " ") and baseSz*0.35 or baseSz*0.72
+            wids[i] = {c=ch, w=w}; totalW = totalW + w
+        end
+        local curX = (vpW - totalW)/2
+        for i = 1, #logoText do
+            if wids[i].c ~= " " then
+                local letter = Instance.new("TextLabel", LogoCont)
+                letter.Size = UDim2.new(0, wids[i].w * 1.3, 1, 0)
+                letter.Position = UDim2.new(0, curX - 20 + math.random(-vpW, vpW), 0, math.random(-vpH, vpH))
+                letter.BackgroundTransparency = 1
+                letter.Text = wids[i].c
+                letter.TextColor3 = Color3.fromRGB(245, 220, 255)
+                letter.Font = Enum.Font.GothamBlack
+                letter.TextSize = baseSz
+                letter.TextTransparency = 1
+                letter.TextStrokeColor3 = Color3.fromRGB(168, 92, 255)
+                letter.TextStrokeTransparency = 1
+                letter.Rotation = math.random(-180, 180)
+                letter.ZIndex = 22 + i
+                local gr = Instance.new("UIGradient", letter)
+                gr.Color = ColorSequence.new(Color3.fromRGB(255,230,255), Color3.fromRGB(160,80,240))
+                gr.Rotation = 45
+                local trailR = letter:Clone(); trailR.Parent = LogoCont
+                trailR.TextColor3 = Color3.fromRGB(255, 80, 120); trailR.TextTransparency = 1
+                trailR.TextStrokeTransparency = 1; trailR.ZIndex = 21
+                local trailB = letter:Clone(); trailB.Parent = LogoCont
+                trailB.TextColor3 = Color3.fromRGB(80, 160, 255); trailB.TextTransparency = 1
+                trailB.TextStrokeTransparency = 1; trailB.ZIndex = 21
+                letters[i] = {main=letter, tr=trailR, tb=trailB, targetX=curX - 20}
+            end
+            curX = curX + wids[i].w
+        end
+
+        -- CAMADA 13: SUBTITLE
+        local Subtitle = nL({Size=UDim2.new(1,0,0,26), Position=UDim2.new(0,0,0.5,60), Text="", TextColor3=Color3.fromRGB(220,190,255), Font=Enum.Font.GothamBold, TextSize=16, TextTransparency=1, ZIndex=32})
         local SubGlow = Instance.new("UIStroke", Subtitle)
         SubGlow.Color = Color3.fromRGB(168, 92, 255); SubGlow.Thickness = 1; SubGlow.Transparency = 1
 
-        -- LAYER 12: VERSION
-        local Version = newLabel({Size=UDim2.new(1,0,0,20), Position=UDim2.new(0,0,0.5,145), Text="v  7.  0", TextColor3=Color3.fromRGB(180,120,240), Font=Enum.Font.GothamBold, TextSize=13, TextTransparency=1, ZIndex=23})
+        -- CAMADA 14: VERSION
+        local Version = nL({Size=UDim2.new(1,0,0,20), Position=UDim2.new(0,0,0.5,140), Text="v  7  .  0", TextColor3=Color3.fromRGB(180,120,240), Font=Enum.Font.GothamBold, TextSize=13, TextTransparency=1, ZIndex=32})
 
-        -- LAYER 13: ARCS
-        local Arcs = newFrame({Size=UDim2.new(0, 500, 0, 180), Position=UDim2.new(0.5,-250,0.5,-140), ZIndex=21})
-        local arcData = {}
-        for i = 1, 10 do
-            local a = Instance.new("Frame", Arcs)
+        -- CAMADA 15: ARCS
+        local ArcsLayer = nF({Size=UDim2.new(0, 600, 0, 200), Position=UDim2.new(0.5,-300,0.5,-160), ZIndex=24})
+        local arcs = {}
+        for i = 1, 12 do
+            local a = Instance.new("Frame", ArcsLayer)
             a.AnchorPoint = Vector2.new(0, 0.5)
             a.Position = UDim2.new(0.5, 0, 0.5, 0)
             a.Size = UDim2.new(0, 0, 0, 2)
             a.BackgroundColor3 = Color3.fromRGB(200, 150, 255)
             a.BackgroundTransparency = 1
             a.BorderSizePixel = 0
-            a.Rotation = math.random(-40, 40); a.ZIndex = 21
-            Instance.new("UICorner", a).CornerRadius = UDim.new(1,0)
-            arcData[i] = a
+            a.Rotation = math.random(-50, 50); a.ZIndex = 24
+            cr(a, 100)
+            local as_ = Instance.new("UIStroke", a)
+            as_.Color = Color3.fromRGB(255, 220, 255); as_.Thickness = 1; as_.Transparency = 1
+            arcs[i] = {obj=a, st=as_}
         end
 
-        -- LAYER 14: PROGRESS
-        local ProgressBg = newFrame({Size=UDim2.new(0, 320, 0, 4), Position=UDim2.new(0.5,-160,0.5,200), BackgroundColor3=Color3.fromRGB(40,30,60), BackgroundTransparency=1, ZIndex=24})
-        Instance.new("UICorner", ProgressBg).CornerRadius = UDim.new(1,0)
-        local ProgressFill = Instance.new("Frame", ProgressBg)
-        ProgressFill.Size = UDim2.new(0, 0, 1, 0)
-        ProgressFill.BackgroundColor3 = Color3.fromRGB(168, 92, 255)
-        ProgressFill.BorderSizePixel = 0; ProgressFill.ZIndex = 25
-        Instance.new("UICorner", ProgressFill).CornerRadius = UDim.new(1,0)
-        local PFG = Instance.new("UIGradient", ProgressFill)
-        PFG.Color = ColorSequence.new(Color3.fromRGB(140,60,220), Color3.fromRGB(255,180,255))
-        local ProgressText = newLabel({Size=UDim2.new(1,0,0,18), Position=UDim2.new(0,0,0.5,210), Text="", TextColor3=Color3.fromRGB(160,110,220), Font=Enum.Font.GothamBold, TextSize=10, TextTransparency=1, ZIndex=24})
+        -- CAMADA 16: PROGRESS
+        local ProgBg = nF({Size=UDim2.new(0, 340, 0, 4), Position=UDim2.new(0.5,-170,0.5,200), BackgroundColor3=Color3.fromRGB(40,30,60), BackgroundTransparency=1, ZIndex=33})
+        cr(ProgBg, 100)
+        local ProgFill = Instance.new("Frame", ProgBg)
+        ProgFill.Size = UDim2.new(0, 0, 1, 0)
+        ProgFill.BackgroundColor3 = Color3.fromRGB(168, 92, 255)
+        ProgFill.BorderSizePixel = 0; ProgFill.ZIndex = 34
+        cr(ProgFill, 100)
+        local PFG = Instance.new("UIGradient", ProgFill)
+        PFG.Color = ColorSequence.new(Color3.fromRGB(140,60,220), Color3.fromRGB(255,200,255))
+        local ProgText = nL({Size=UDim2.new(1,0,0,18), Position=UDim2.new(0,0,0.5,212), Text="", TextColor3=Color3.fromRGB(160,110,220), Font=Enum.Font.GothamBold, TextSize=10, TextTransparency=1, ZIndex=33})
 
-        -- LAYER 15: SHOCKWAVE
-        local Shockwave = Instance.new("Frame", IntroGui)
-        Shockwave.AnchorPoint = Vector2.new(0.5, 0.5)
-        Shockwave.Position = UDim2.new(0.5, 0, 0.5, 0)
-        Shockwave.Size = UDim2.new(0, 0, 0, 0)
-        Shockwave.BackgroundTransparency = 1; Shockwave.BorderSizePixel = 0; Shockwave.ZIndex = 30
-        Instance.new("UICorner", Shockwave).CornerRadius = UDim.new(1,0)
-        local ShockStroke = Instance.new("UIStroke", Shockwave)
+        -- CAMADA 17: SHOCKWAVE
+        local ShockFrame = newproxy and nil or Instance.new("Frame", IntroGui)
+        ShockFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        ShockFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+        ShockFrame.Size = UDim2.new(0, 0, 0, 0)
+        ShockFrame.BackgroundTransparency = 1; ShockFrame.BorderSizePixel = 0; ShockFrame.ZIndex = 35
+        cr(ShockFrame, 1000)
+        local ShockStroke = Instance.new("UIStroke", ShockFrame)
         ShockStroke.Color = Color3.fromRGB(220,180,255); ShockStroke.Thickness = 6; ShockStroke.Transparency = 1
 
-        -- LAYER 16: VIGNETTE
-        local Vig = newFrame({Size=UDim2.new(1,0,1,0), ZIndex=40})
-        local vTop = Instance.new("Frame", Vig)
-        vTop.Size = UDim2.new(1,0,0,140); vTop.BackgroundColor3 = Color3.new(0,0,0); vTop.BorderSizePixel = 0; vTop.ZIndex = 40
-        local vTopG = Instance.new("UIGradient", vTop); vTopG.Rotation = 90
-        vTopG.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 1)})
-        local vBot = Instance.new("Frame", Vig)
-        vBot.Size = UDim2.new(1,0,0,140); vBot.Position = UDim2.new(0,0,1,-140); vBot.BackgroundColor3 = Color3.new(0,0,0); vBot.BorderSizePixel = 0; vBot.ZIndex = 40
-        local vBotG = Instance.new("UIGradient", vBot); vBotG.Rotation = 270
-        vBotG.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 1)})
+        -- CAMADA 18: VIGNETTE
+        local Vig = nF({Size=UDim2.new(1,0,1,0), ZIndex=40})
+        for _, cfgV in ipairs({{Size=UDim2.new(1,0,0,160), Pos=UDim2.new(0,0,0,0), Rot=90},{Size=UDim2.new(1,0,0,160), Pos=UDim2.new(0,0,1,-160), Rot=270},{Size=UDim2.new(0,180,1,0), Pos=UDim2.new(0,0,0,0), Rot=0},{Size=UDim2.new(0,180,1,0), Pos=UDim2.new(1,-180,0,0), Rot=180}}) do
+            local v = Instance.new("Frame", Vig)
+            v.Size = cfgV.Size; v.Position = cfgV.Pos
+            v.BackgroundColor3 = Color3.new(0,0,0); v.BorderSizePixel = 0; v.ZIndex = 40
+            local g = Instance.new("UIGradient", v); g.Rotation = cfgV.Rot
+            g.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 1)})
+        end
 
-        -- LAYER 17: FLASH
-        local Flash = newFrame({Size=UDim2.new(1,0,1,0), BackgroundColor3=Color3.fromRGB(230,200,255), BackgroundTransparency=1, ZIndex=50})
+        -- CAMADA 19: FLASH
+        local Flash = nF({Size=UDim2.new(1,0,1,0), BackgroundColor3=Color3.fromRGB(240,220,255), BackgroundTransparency=1, ZIndex=50})
 
-        -- REALTIME LOOP
-        local orbitActive = true
-        local startTime = tick()
+        -- SKIP
+        local Skip = Instance.new("TextButton", IntroGui)
+        Skip.Size = UDim2.new(0, 90, 0, 26)
+        Skip.Position = UDim2.new(1, -110, 1, -42)
+        Skip.BackgroundColor3 = Color3.fromRGB(30,20,50); Skip.BackgroundTransparency = 0.4
+        Skip.Text = "SKIP ▶▶"; Skip.TextColor3 = Color3.fromRGB(180,150,220)
+        Skip.Font = Enum.Font.GothamBold; Skip.TextSize = 11; Skip.ZIndex = 100
+        cr(Skip, 6)
+        local skipReq = false
+        Skip.MouseButton1Click:Connect(function() skipReq = true end)
+
+        -- LOOP REALTIME
+        local animating = true
+        local st = tick()
         task.spawn(function()
-            while orbitActive and IntroGui.Parent do
+            while animating and IntroGui.Parent do
                 local dt = RunService.RenderStepped:Wait()
-                local el = tick() - startTime
+                local el = tick() - st
                 for i, s in ipairs(starData) do
-                    if s.obj.Parent then
-                        s.obj.Position = UDim2.new((s.baseX + el * s.speed) % 1, 0, s.obj.Position.Y.Scale, 0)
+                    if s.obj.Parent then s.obj.Position = UDim2.new((s.baseX + el*s.spd) % 1, 0, s.baseY + math.sin(el*0.5 + s.phase)*0.005, 0) end
+                end
+                for i, col in ipairs(matrixCols) do
+                    if col.obj.Parent then
+                        local y = col.obj.Position.Y.Scale + dt * col.speed
+                        if y > 1.5 then y = -0.5; col.offset = math.random() end
+                        col.obj.Position = UDim2.new(col.obj.Position.X.Scale, 0, y, 0)
+                        for j, ch in ipairs(col.chars) do
+                            if ch.Parent and math.random() < 0.05 then ch.Text = chars[math.random(#chars)] end
+                        end
                     end
                 end
-                for i, p in ipairs(particleData) do
-                    if p.obj.Parent then
-                        p.dist = math.max(0, p.dist - p.speed * dt)
-                        p.angle = p.angle + dt * 0.3
-                        p.obj.Position = UDim2.new(0.5 + math.cos(p.angle) * p.dist / vpW, 0, 0.5 + math.sin(p.angle) * p.dist / vpH, 0)
+                for i, n in ipairs(neuralNodes) do
+                    if n.obj.Parent and n.obj.BackgroundTransparency < 1 then
+                        n.obj.BackgroundTransparency = math.min(1, 1 - (0.5 + math.sin(el*3 + n.phase)*0.5)*0.7)
+                    end
+                end
+                for i, p in ipairs(particles) do
+                    if p.obj.Parent and p.dist > 0 then
+                        p.dist = math.max(0, p.dist - p.spd * dt)
+                        p.ang = p.ang + dt * 0.5
+                        p.obj.Position = UDim2.new(0.5 + math.cos(p.ang)*p.dist/vpW, 0, 0.5 + math.sin(p.ang)*p.dist/vpH, 0)
+                        if p.dist < 30 then
+                            p.obj.BackgroundTransparency = 1; p.dist = -1
+                        end
                     end
                 end
                 for i, r in ipairs(rings) do
                     if r.f.Parent and r.f.Size.X.Offset > 5 then
-                        local ang = el * r.rotSpd % (math.pi * 2)
-                        r.dot.Position = UDim2.new(0.5 + math.cos(ang) * 0.5, 0, 0.5 + math.sin(ang) * 0.5, 0)
+                        local ang = el * r.rotSpd % 6.28
+                        r.dot.Position = UDim2.new(0.5 + math.cos(ang)*0.5, 0, 0.5 + math.sin(ang)*0.5, 0)
+                    end
+                end
+                for i, r in ipairs(runes) do
+                    if r.obj.Parent and r.obj.TextTransparency < 1 then
+                        local a = r.ang + el*0.15
+                        r.obj.Position = UDim2.new(0.5, math.cos(a)*240 - 20, 0.5, math.sin(a)*240 - 20)
                     end
                 end
             end
         end)
 
-        -- ANIMAÇÃO PRINCIPAL
+        -- ===== ANIMAÇÃO (7 CENAS) =====
         task.spawn(function()
             pcall(function()
-                -- FASE 0
+                -- CENA 1: VOID
                 task.wait(0.05)
-                tw(Bg, 0.3, {BackgroundColor3=Color3.fromRGB(2,0,5)})
+                local dot = nF({Size=UDim2.new(0,4,0,4), Position=UDim2.new(0.5,-2,0.5,-2), BackgroundColor3=Color3.fromRGB(220,180,255), BackgroundTransparency=0, ZIndex=10})
+                cr(dot, 100)
+                tw(dot, 0.4, {Size=UDim2.new(0,20,0,20), Position=UDim2.new(0.5,-10,0.5,-10)})
+                task.wait(0.4)
+                if skipReq then animating=false; IntroGui:Destroy(); Complete(); return end
 
-                -- FASE 1: despertar
-                task.wait(0.35)
-                tw(RadialBg, 1.2, {BackgroundTransparency=0})
+                -- CENA 2: AWAKENING
+                tw(RadialBg, 1.3, {BackgroundTransparency=0})
+                tw(dot, 0.3, {BackgroundTransparency=1, Size=UDim2.new(0,60,0,60), Position=UDim2.new(0.5,-30,0.5,-30)})
                 for i, r in ipairs(rayData) do
                     task.spawn(function()
                         task.wait(r.delay)
-                        tw(r.obj, 0.8, {Size=UDim2.new(0, 2, 0, math.max(vpH/2, 300)), BackgroundTransparency=0.78})
-                    end)
-                end
-                for k = 1, 4 do
-                    task.spawn(function()
-                        task.wait(0.3 + k * 0.35)
-                        local circ = Instance.new("Frame", CircleLayer)
-                        circ.AnchorPoint = Vector2.new(0.5, 0.5)
-                        circ.Position = UDim2.new(0.5, 0, 0.5, 0)
-                        circ.Size = UDim2.new(0, 20, 0, 20)
-                        circ.BackgroundTransparency = 1; circ.BorderSizePixel = 0; circ.ZIndex = 5
-                        Instance.new("UICorner", circ).CornerRadius = UDim.new(1,0)
-                        local cs = Instance.new("UIStroke", circ)
-                        cs.Color = Color3.fromRGB(168, 92, 255); cs.Thickness = 2; cs.Transparency = 0.2
-                        tw(circ, 1.4, {Size=UDim2.new(0, vpW*1.8, 0, vpW*1.8)})
-                        tw(cs, 1.4, {Transparency=1})
+                        tw(r.obj, 0.8, {Size=UDim2.new(0, 2, 0, math.max(vpH/2, 300)), BackgroundTransparency=0.85})
                     end)
                 end
                 task.spawn(function()
-                    task.wait(0.6)
-                    for i, p in ipairs(particleData) do
-                        task.wait(0.015)
-                        if p.obj.Parent then p.obj.BackgroundTransparency = 0.2 end
-                    end
+                    task.wait(0.3)
+                    for i, p in ipairs(particles) do task.wait(0.008); if p.obj.Parent then p.obj.BackgroundTransparency = 0.15 end end
                 end)
+                task.spawn(function()
+                    task.wait(0.5)
+                    for _, n in ipairs(neuralNodes) do if n.obj.Parent then tw(n.obj, 0.5, {BackgroundTransparency=0.3}) end end
+                    for _, l in ipairs(neuralLines) do if l.Parent then tw(l, 0.8, {BackgroundTransparency=0.85}) end end
+                end)
+                task.spawn(function()
+                    task.wait(1)
+                    for _, c in ipairs(matrixCols) do if c.obj.Parent then tw(c.obj, 0.5, {BackgroundTransparency=0}) end end
+                    for _, c in ipairs(matrixCols) do for _, ch in ipairs(c.chars) do if ch.Parent then tw(ch, 0.5, {TextTransparency=math.random(20,60)/100}) end end end
+                end)
+                task.wait(2)
 
-                -- FASE 2: glitch
-                task.wait(1.5)
-                for _, line in ipairs(Scanlines:GetChildren()) do
-                    if line:IsA("Frame") then tw(line, 0.3, {BackgroundTransparency=0.85}) end
-                end
+                -- CENA 3: GLITCH
+                if skipReq then animating=false; IntroGui:Destroy(); Complete(); return end
+                for _, l in ipairs(Scanlines:GetChildren()) do if l:IsA("Frame") then tw(l, 0.3, {BackgroundTransparency=0.85}) end end
                 task.spawn(function()
                     local endT = tick() + 0.9
-                    while tick() < endT and IntroGui.Parent do
+                    while tick() < endT and IntroGui.Parent and not skipReq do
                         for i, bar in ipairs(glitchBars) do
                             if math.random() < 0.4 then
-                                bar.Size = UDim2.new(math.random(20, 60)/100, 0, 0, math.random(2, 8))
-                                bar.Position = UDim2.new(math.random(0, 30)/100, 0, math.random(), 0)
+                                bar.Size = UDim2.new(math.random(20,60)/100, 0, 0, math.random(2,10))
+                                bar.Position = UDim2.new(math.random(0,30)/100, 0, math.random(), 0)
                                 bar.BackgroundTransparency = 0.3
                             end
                         end
@@ -502,18 +605,18 @@ local function PlayIntro(onComplete)
                     end
                     for _, bar in ipairs(glitchBars) do tw(bar, 0.15, {BackgroundTransparency=1}) end
                 end)
-                local glitchTxts = {"SYS.INIT","V0ID","HUB","LOADING","CONNECTING","//_ACCESS","SEGFAULT","ROOT>","010101"}
+                local hacker = {"SYS.INIT","V0ID","LOADING","SEGFAULT","ROOT>","010101","//ACCESS"}
                 task.spawn(function()
                     local endT = tick() + 0.9
-                    while tick() < endT and IntroGui.Parent do
+                    while tick() < endT and IntroGui.Parent and not skipReq do
                         local txt = Instance.new("TextLabel", IntroGui)
-                        txt.Size = UDim2.new(0, math.random(80, 200), 0, 20)
-                        txt.Position = UDim2.new(math.random(10, 80)/100, 0, math.random(10, 90)/100, 0)
+                        txt.Size = UDim2.new(0, math.random(80,200), 0, 20)
+                        txt.Position = UDim2.new(math.random(10,80)/100, 0, math.random(10,90)/100, 0)
                         txt.BackgroundTransparency = 1
-                        txt.Text = glitchTxts[math.random(#glitchTxts)]
-                        txt.TextColor3 = Color3.fromRGB(math.random(100, 255), math.random(0, 150), 255)
-                        txt.Font = Enum.Font.Code; txt.TextSize = math.random(10, 16)
-                        txt.TextTransparency = 0.3; txt.ZIndex = 7
+                        txt.Text = hacker[math.random(#hacker)]
+                        txt.TextColor3 = Color3.fromRGB(math.random(100,255), math.random(0,150), 255)
+                        txt.Font = Enum.Font.Code; txt.TextSize = math.random(10,16)
+                        txt.TextTransparency = 0.3; txt.ZIndex = 8
                         TweenService:Create(txt, TweenInfo.new(0.1), {TextTransparency=1}):Play()
                         task.delay(0.15, function() if txt then txt:Destroy() end end)
                         task.wait(0.04)
@@ -521,103 +624,109 @@ local function PlayIntro(onComplete)
                 end)
                 Flash.BackgroundTransparency = 0.3
                 tw(Flash, 0.2, {BackgroundTransparency=1})
+                task.wait(1)
 
-                -- FASE 3: portal
-                task.wait(0.3)
+                -- CENA 4: PORTAL
+                if skipReq then animating=false; IntroGui:Destroy(); Complete(); return end
                 tw(Core, 0.6, {Size=UDim2.new(0, 50, 0, 50), BackgroundTransparency=0.3})
                 tw(CoreGlow, 0.8, {BackgroundTransparency=0.6})
                 for i, r in ipairs(rings) do
                     task.spawn(function()
                         task.wait(i * 0.12)
-                        tw(r.f, 0.9, {Size=UDim2.new(0, r.baseSize, 0, r.baseSize)}, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                        tw(r.f, 0.9, {Size=UDim2.new(0, r.baseSz, 0, r.baseSz)}, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
                         tw(r.s, 0.9, {Transparency=0.2})
                         tw(r.dot, 0.7, {BackgroundTransparency=0})
                         tw(r.ds, 0.7, {Transparency=0.3})
                     end)
                 end
+                for i, r in ipairs(runes) do
+                    task.spawn(function()
+                        task.wait(i * 0.05)
+                        tw(r.obj, 0.6, {TextTransparency=0.15})
+                        tw(r.st, 0.6, {Transparency=0.6})
+                    end)
+                end
                 task.spawn(function()
-                    for k = 1, 4 do
+                    for k = 1, 3 do
                         tw(Core, 0.25, {BackgroundTransparency=0.1}); task.wait(0.25)
                         tw(Core, 0.25, {BackgroundTransparency=0.5}); task.wait(0.25)
                     end
                 end)
+                task.wait(1.5)
 
-                -- FASE 4: título
-                task.wait(1.3)
+                -- CENA 5: LOGO ASSEMBLY
+                if skipReq then animating=false; IntroGui:Destroy(); Complete(); return end
                 Flash.BackgroundTransparency = 0.2
                 tw(Flash, 0.25, {BackgroundTransparency=1})
-                MT.TextSize = 160; MT.TextTransparency = 1; MT.TextStrokeTransparency = 1
-                tw(MT, 0.7, {TextSize=120, TextTransparency=0}, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-                tw(MTStroke, 0.7, {Transparency=0.2})
-                task.wait(0.4)
-                MT_R.TextSize = 120; MT_R.TextTransparency = 0.6; MT_R.Position = UDim2.new(0, -10, 0, 0)
-                MT_B.TextSize = 120; MT_B.TextTransparency = 0.6; MT_B.Position = UDim2.new(0, 10, 0, 0)
-                task.wait(0.15)
-                tw(MT_R, 0.4, {Position=UDim2.new(0,0,0,0), TextTransparency=1})
-                tw(MT_B, 0.4, {Position=UDim2.new(0,0,0,0), TextTransparency=1})
-                local origPos = TitleLayer.Position
+                for i, l in ipairs(letters) do
+                    task.spawn(function()
+                        task.wait((i-1) * 0.08)
+                        tw(l.main, 0.6, {Position=UDim2.new(0, l.targetX, 0, 0), Rotation=0, TextTransparency=0}, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                        tw(l.tr, 0.6, {Position=UDim2.new(0, l.targetX, 0, 0), Rotation=0, TextTransparency=0.6}, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                        tw(l.tb, 0.6, {Position=UDim2.new(0, l.targetX, 0, 0), Rotation=0, TextTransparency=0.6}, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                        task.wait(0.3)
+                        tw(l.tr, 0.4, {TextTransparency=1})
+                        tw(l.tb, 0.4, {TextTransparency=1})
+                    end)
+                end
+                task.wait(1.0)
+                -- Screen shake
+                local orig = LogoCont.Position
                 for k = 1, 12 do
-                    TitleLayer.Position = origPos + UDim2.new(0, math.random(-8,8), 0, math.random(-8,8))
+                    LogoCont.Position = orig + UDim2.new(0, math.random(-8,8), 0, math.random(-8,8))
                     task.wait(0.025)
                 end
-                TitleLayer.Position = origPos
-                task.wait(0.15)
-                tw(Version, 0.35, {TextTransparency=0})
+                LogoCont.Position = orig
+                -- Arcs flare
                 task.spawn(function()
-                    for i, a in ipairs(arcData) do
+                    for i, a in ipairs(arcs) do
                         task.wait(0.04)
-                        tw(a, 0.3, {Size=UDim2.new(0, math.random(60, 180), 0, 2), BackgroundTransparency=0.3})
-                        task.delay(0.3, function()
-                            if a.Parent then tw(a, 0.4, {Size=UDim2.new(0, 0, 0, 2), BackgroundTransparency=1}) end
-                        end)
+                        tw(a.obj, 0.3, {Size=UDim2.new(0, math.random(80,220), 0, 2), BackgroundTransparency=0.3})
+                        task.delay(0.3, function() if a.obj.Parent then tw(a.obj, 0.4, {Size=UDim2.new(0, 0, 0, 2), BackgroundTransparency=1}) end end)
                     end
                 end)
+                task.wait(0.2)
+                tw(Version, 0.35, {TextTransparency=0})
 
-                -- FASE 5: subtitle + progress
+                -- CENA 6: POWER
+                if skipReq then animating=false; IntroGui:Destroy(); Complete(); return end
                 task.wait(0.3)
                 Subtitle.TextTransparency = 0
-                local tagline = "AIMBOT  •  DESEMPENHO  •  IA"
-                for i = 1, #tagline do
-                    Subtitle.Text = string.sub(tagline, 1, i)
-                    task.wait(0.025)
-                end
+                local tag = "AIMBOT  •  DESEMPENHO  •  IA"
+                for i = 1, #tag do Subtitle.Text = string.sub(tag, 1, i); task.wait(0.025) end
                 task.wait(0.15)
-                ProgressText.TextTransparency = 0
-                tw(ProgressBg, 0.3, {BackgroundTransparency=0.2})
-                local stages = {"INICIALIZANDO SISTEMAS...","CARREGANDO MÓDULOS...","ATIVANDO AIMBOT...","OTIMIZANDO FPS...","CONECTANDO IA...","PRONTO."}
+                ProgText.TextTransparency = 0
+                tw(ProgBg, 0.3, {BackgroundTransparency=0.2})
+                local stages = {"INICIALIZANDO...","CARREGANDO MÓDULOS...","ATIVANDO AIMBOT...","OTIMIZANDO FPS...","CONECTANDO IA...","PRONTO."}
                 for i, s in ipairs(stages) do
-                    ProgressText.Text = s
-                    tw(ProgressFill, 0.2, {Size=UDim2.new(i / #stages, 0, 1, 0)})
+                    ProgText.Text = s
+                    tw(ProgFill, 0.2, {Size=UDim2.new(i / #stages, 0, 1, 0)})
                     task.wait(0.22)
                 end
                 task.wait(0.1)
-                tw(MT, 0.15, {TextColor3=Color3.fromRGB(255,255,255)}, Enum.EasingStyle.Quad)
-                tw(MTGrad, 0.3, {Rotation=90})
-                task.wait(0.15)
-                tw(MT, 0.4, {TextColor3=Color3.fromRGB(245,220,255)})
+                tw(CoreGrad, 0.3, {Rotation=90})
+                task.wait(0.4)
 
-                -- FASE 6: colapso
-                task.wait(0.3)
-                orbitActive = false
-                for _, p in ipairs(particleData) do
-                    if p.obj.Parent then tw(p.obj, 0.5, {BackgroundTransparency=1, Size=UDim2.new(0,0,0,0)}) end
-                end
+                -- CENA 7: COLLAPSE
+                animating = false
+                for _, p in ipairs(particles) do if p.obj.Parent then tw(p.obj, 0.5, {BackgroundTransparency=1, Size=UDim2.new(0,0,0,0)}) end end
                 for _, r in ipairs(rings) do
                     tw(r.f, 0.5, {Size=UDim2.new(0,0,0,0)}, Enum.EasingStyle.Back, Enum.EasingDirection.In)
-                    tw(r.s, 0.5, {Transparency=1})
-                    tw(r.dot, 0.4, {BackgroundTransparency=1})
+                    tw(r.s, 0.5, {Transparency=1}); tw(r.dot, 0.4, {BackgroundTransparency=1})
                 end
-                tw(Core, 0.4, {Size=UDim2.new(0, 0, 0, 0), BackgroundTransparency=1})
+                for _, l in ipairs(letters) do
+                    tw(l.main, 0.5, {TextTransparency=1, Position=UDim2.new(0, l.targetX, 0, -50)}, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+                end
+                for _, r in ipairs(runes) do if r.obj.Parent then tw(r.obj, 0.4, {TextTransparency=1}) end end
+                tw(Core, 0.4, {Size=UDim2.new(0,0,0,0), BackgroundTransparency=1})
                 tw(CoreGlow, 0.4, {BackgroundTransparency=1})
-                tw(MT, 0.5, {TextTransparency=1, TextSize=140}, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-                tw(MTStroke, 0.5, {Transparency=1})
                 tw(Subtitle, 0.4, {TextTransparency=1}); tw(SubGlow, 0.4, {Transparency=1})
                 tw(Version, 0.4, {TextTransparency=1})
                 task.wait(0.2)
                 ShockStroke.Transparency = 0
-                tw(Shockwave, 0.7, {Size=UDim2.new(0, vpW*2.5, 0, vpW*2.5)}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+                tw(ShockFrame, 0.7, {Size=UDim2.new(0, vpW*2.5, 0, vpW*2.5)}, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
                 tw(ShockStroke, 0.7, {Transparency=1, Thickness=1})
-                Flash.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                Flash.BackgroundColor3 = Color3.fromRGB(255,255,255)
                 tw(Flash, 0.1, {BackgroundTransparency=0})
                 task.wait(0.1)
                 Flash.BackgroundColor3 = Color3.new(0,0,0)
@@ -625,11 +734,11 @@ local function PlayIntro(onComplete)
                 task.wait(0.3)
                 for _, s in ipairs(starData) do if s.obj.Parent then tw(s.obj, 0.3, {BackgroundTransparency=1}) end end
                 for _, r in ipairs(rayData) do if r.obj.Parent then tw(r.obj, 0.3, {BackgroundTransparency=1}) end end
-                for _, line in ipairs(Scanlines:GetChildren()) do if line:IsA("Frame") then tw(line, 0.3, {BackgroundTransparency=1}) end end
+                for _, l in ipairs(Scanlines:GetChildren()) do if l:IsA("Frame") then tw(l, 0.3, {BackgroundTransparency=1}) end end
                 tw(RadialBg, 0.4, {BackgroundTransparency=1})
-                tw(ProgressBg, 0.4, {BackgroundTransparency=1})
-                tw(ProgressFill, 0.4, {BackgroundTransparency=1})
-                tw(ProgressText, 0.4, {TextTransparency=1})
+                tw(ProgBg, 0.4, {BackgroundTransparency=1})
+                tw(ProgFill, 0.4, {BackgroundTransparency=1})
+                tw(ProgText, 0.4, {TextTransparency=1})
                 tw(Flash, 0.4, {BackgroundTransparency=1})
                 tw(Bg, 0.5, {BackgroundTransparency=1})
                 task.wait(0.6)
@@ -638,13 +747,10 @@ local function PlayIntro(onComplete)
             Complete()
         end)
 
-        task.delay(12, function()
-            if IntroGui and IntroGui.Parent then IntroGui:Destroy() end
-            Complete()
-        end)
+        task.delay(13, function() if IntroGui and IntroGui.Parent then IntroGui:Destroy() end; Complete() end)
     end)
 
-    if not success then warn("[VOID HUB] Erro intro ULTRA: "..tostring(err)); Complete() end
+    if not success then warn("[VOID HUB] Erro intro ULTRA-PREMIUM: "..tostring(err)); Complete() end
 end
 
 -- ==========================================
@@ -660,7 +766,6 @@ local function BuildUI()
         SG.Name="VoidHub7"; SG.IgnoreGuiInset=true; SG.ResetOnSpawn=false
         SG.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; SG.Parent=PlayerGui
 
-        -- BACKDROP
         local BD = Instance.new("Frame", SG)
         BD.Size=UDim2.new(1,0,1,0); BD.BackgroundColor3=Color3.fromRGB(5,3,12)
         BD.BackgroundTransparency=0.35; BD.BorderSizePixel=0; BD.ZIndex=1
@@ -669,34 +774,19 @@ local function BuildUI()
         BgFx.Size=UDim2.new(1,0,1,0); BgFx.BackgroundColor3=Color3.new(1,1,1)
         BgFx.BackgroundTransparency=0.5; BgFx.BorderSizePixel=0; BgFx.ZIndex=2
         local BgFxGrad = Instance.new("UIGradient", BgFx)
-        BgFxGrad.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(60,20,120)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120,40,200)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(40,10,80))
-        })
+        BgFxGrad.Color = ColorSequence.new(Color3.fromRGB(60,20,120), Color3.fromRGB(120,40,200), Color3.fromRGB(40,10,80))
         BgFxGrad.Rotation = 45
-        BgFxGrad.Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0.5),
-            NumberSequenceKeypoint.new(0.5, 0.7),
-            NumberSequenceKeypoint.new(1, 0.5)
-        })
         task.spawn(function() while BgFx.Parent do BgFxGrad.Rotation = (BgFxGrad.Rotation + 0.3) % 360; task.wait(0.05) end end)
 
-        -- TOASTS
         local ToastStack = Instance.new("Frame", SG)
         ToastStack.Size = UDim2.new(0, 240, 0, 400)
         ToastStack.Position = UDim2.new(1, -260, 1, -420)
         ToastStack.BackgroundTransparency = 1; ToastStack.ZIndex = 300
-        local ToastLayout = Instance.new("UIListLayout", ToastStack)
-        ToastLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-        ToastLayout.Padding = UDim.new(0, 6)
+        local TL = Instance.new("UIListLayout", ToastStack)
+        TL.VerticalAlignment = Enum.VerticalAlignment.Bottom; TL.Padding = UDim.new(0, 6)
 
         local function Toast(title, subtitle, kind)
-            kind = kind or "info"
-            local accent = C.Accent
-            if kind == "success" then accent = C.Success end
-            if kind == "error" then accent = C.Danger end
-            if kind == "warning" then accent = C.Warning end
+            local accent = kind=="success" and C.Success or (kind=="error" and C.Danger or (kind=="warning" and C.Warning or C.Accent))
             local t = Instance.new("Frame", ToastStack)
             t.Size = UDim2.new(1, 0, 0, 46); t.BackgroundColor3 = C.Panel; t.BackgroundTransparency = 0.05; t.BorderSizePixel = 0; t.ZIndex = 301
             Utils.Corner(t, 8)
@@ -706,10 +796,10 @@ local function BuildUI()
             local ttl = Instance.new("TextLabel", t); ttl.Size = UDim2.new(1, -24, 0, 18); ttl.Position = UDim2.new(0, 12, 0, 6); ttl.BackgroundTransparency = 1; ttl.Text = title; ttl.TextColor3 = C.Text; ttl.Font = Enum.Font.GothamBold; ttl.TextSize = 11; ttl.TextXAlignment = Enum.TextXAlignment.Left; ttl.ZIndex = 302
             local sub = Instance.new("TextLabel", t); sub.Size = UDim2.new(1, -24, 0, 14); sub.Position = UDim2.new(0, 12, 0, 24); sub.BackgroundTransparency = 1; sub.Text = subtitle or ""; sub.TextColor3 = C.TextDim; sub.Font = Enum.Font.Gotham; sub.TextSize = 9; sub.TextXAlignment = Enum.TextXAlignment.Left; sub.ZIndex = 302
             local sc = Instance.new("UIScale", t); sc.Scale = 0.7
-            TweenService:Create(sc, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale=1}):Play()
+            TweenService:Create(sc, TweenInfo.new(0.3, Enum.EasingStyle.Back), {Scale=1}):Play()
             task.delay(2.8, function()
                 if t and t.Parent then
-                    TweenService:Create(sc, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Scale=0.7}):Play()
+                    TweenService:Create(sc, TweenInfo.new(0.3, Enum.EasingStyle.Back), {Scale=0.7}):Play()
                     TweenService:Create(t, TweenInfo.new(0.3), {BackgroundTransparency=1}):Play()
                     TweenService:Create(ts, TweenInfo.new(0.3), {Transparency=1}):Play()
                     task.delay(0.35, function() if t then t:Destroy() end end)
@@ -717,7 +807,6 @@ local function BuildUI()
             end)
         end
 
-        -- FPS HUD
         local FH = Instance.new("Frame", SG)
         FH.Size=UDim2.new(0,200,0,58); FH.Position=UDim2.new(1,-218,0,16)
         FH.BackgroundColor3=C.Panel; FH.BackgroundTransparency=0.1; FH.ZIndex=200
@@ -729,15 +818,12 @@ local function BuildUI()
         local FHBarBg = Instance.new("Frame", FH); FHBarBg.Size=UDim2.new(1,-16,0,3); FHBarBg.Position=UDim2.new(0,8,1,-8); FHBarBg.BackgroundColor3=C.ToggleOff; FHBarBg.BorderSizePixel=0; FHBarBg.ZIndex=201; Utils.Corner(FHBarBg,2)
         local FHBarFill = Instance.new("Frame", FHBarBg); FHBarFill.Size=UDim2.new(0,0,1,0); FHBarFill.BackgroundColor3=C.Success; FHBarFill.BorderSizePixel=0; FHBarFill.ZIndex=202; Utils.Corner(FHBarFill,2)
 
-        -- FLOATING BALL
         local FB = Instance.new("TextButton", SG)
         FB.Size=UDim2.new(0,48,0,48); FB.Position=UDim2.new(0,18,0.5,-24)
         FB.BackgroundColor3=C.Panel; FB.Text=""; FB.Visible=false; FB.ZIndex=100
         Utils.Corner(FB,14); Utils.Stroke(FB,C.Accent,2,0.3)
         local FI = Instance.new("ImageLabel", FB); FI.Size=UDim2.new(1,0,1,0); FI.BackgroundTransparency=1; FI.Image=CONFIG_IMAGE_ID; FI.ScaleType=Enum.ScaleType.Crop; FI.ZIndex=101; Utils.Corner(FI,14)
-        local FIStroke = Instance.new("UIStroke", FI); FIStroke.Color=C.Accent; FIStroke.Thickness=2; FIStroke.Transparency=0.3
 
-        -- MAIN WINDOW
         local MN = Instance.new("Frame", SG)
         MN.Size=UDim2.new(0,480,0,360); MN.Position=UDim2.new(0.5,-240,0.5,-180)
         MN.BackgroundColor3=C.BG; MN.BackgroundTransparency=0.02; MN.ClipsDescendants=true; MN.ZIndex=2; MN.Visible=false
@@ -757,7 +843,6 @@ local function BuildUI()
         end
         Connect(FB.MouseButton1Click, Res)
 
-        -- HEADER
         local HD = Instance.new("Frame", MN); HD.Size=UDim2.new(1,0,0,48); HD.BackgroundTransparency=1; HD.ZIndex=3
         local LF = Instance.new("Frame", HD); LF.Size=UDim2.new(0,28,0,28); LF.Position=UDim2.new(0,14,0.5,-14); LF.BackgroundColor3=C.Accent; LF.ZIndex=3; Utils.Corner(LF,7)
         local LFGrad = Instance.new("UIGradient", LF); LFGrad.Color = ColorSequence.new(C.Accent, C.AccentLight); LFGrad.Rotation = 45
@@ -779,19 +864,16 @@ local function BuildUI()
 
         local Divider = Instance.new("Frame", MN); Divider.Size=UDim2.new(1,-28,0,1); Divider.Position=UDim2.new(0,14,0,48); Divider.BackgroundColor3=C.Accent; Divider.BackgroundTransparency=0.7; Divider.BorderSizePixel=0; Divider.ZIndex=3
 
-        -- SIDEBAR
         local SB_Bg = Instance.new("Frame", MN); SB_Bg.Size=UDim2.new(0,150,1,-49); SB_Bg.Position=UDim2.new(0,0,0,49); SB_Bg.BackgroundColor3=C.Panel; SB_Bg.BackgroundTransparency=0.7; SB_Bg.BorderSizePixel=0; SB_Bg.ZIndex=2
         local SBDiv = Instance.new("Frame", MN); SBDiv.Size=UDim2.new(0,1,1,-49); SBDiv.Position=UDim2.new(0,150,0,49); SBDiv.BackgroundColor3=C.Accent; SBDiv.BackgroundTransparency=0.7; SBDiv.BorderSizePixel=0; SBDiv.ZIndex=3
 
         local SB_ = Instance.new("ScrollingFrame", MN); SB_.Size=UDim2.new(0,150,1,-49); SB_.Position=UDim2.new(0,0,0,49); SB_.BackgroundTransparency=1; SB_.ScrollBarThickness=0; SB_.CanvasSize=UDim2.new(0,0,0,500); SB_.ZIndex=3
-        local SBLayout = Instance.new("UIListLayout", SB_); SBLayout.Padding = UDim.new(0, 2); SBLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        local SBL = Instance.new("UIListLayout", SB_); SBL.Padding = UDim.new(0, 2); SBL.SortOrder = Enum.SortOrder.LayoutOrder
 
-        -- CONTENT
         local CT = Instance.new("Frame", MN); CT.Size=UDim2.new(1,-150,1,-49); CT.Position=UDim2.new(0,150,0,49); CT.BackgroundTransparency=1; CT.ClipsDescendants=true; CT.ZIndex=5
         local PT = Instance.new("TextLabel", CT); PT.Size=UDim2.new(1,-40,0,22); PT.Position=UDim2.new(0,18,0,12); PT.BackgroundTransparency=1; PT.Text=T("aim_title"); PT.TextColor3=C.Text; PT.Font=Enum.Font.GothamBlack; PT.TextSize=14; PT.TextXAlignment=Enum.TextXAlignment.Left; PT.ZIndex=6
         local PTSub = Instance.new("TextLabel", CT); PTSub.Size=UDim2.new(1,-40,0,14); PTSub.Position=UDim2.new(0,18,0,32); PTSub.BackgroundTransparency=1; PTSub.Text=T("aim_sub"); PTSub.TextColor3=C.TextDim; PTSub.Font=Enum.Font.Gotham; PTSub.TextSize=10; PTSub.TextXAlignment=Enum.TextXAlignment.Left; PTSub.ZIndex=6
 
-        -- UI HELPERS
         local UI = {}
 
         function UI.Section(parent, title)
@@ -815,13 +897,13 @@ local function BuildUI()
                 if st then
                     TweenService:Create(tr, TweenInfo.new(0.2, Enum.EasingStyle.Back), {BackgroundColor3=C.Accent}):Play()
                     TweenService:Create(trs, TweenInfo.new(0.2), {Transparency=0.3}):Play()
-                    TweenService:Create(kn, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position=UDim2.new(1,-16,0.5,-7), BackgroundColor3=C.Text}):Play()
+                    TweenService:Create(kn, TweenInfo.new(0.25, Enum.EasingStyle.Back), {Position=UDim2.new(1,-16,0.5,-7), BackgroundColor3=C.Text}):Play()
                     TweenService:Create(bar, TweenInfo.new(0.2), {BackgroundTransparency=0}):Play()
                     TweenService:Create(rs, TweenInfo.new(0.2), {Transparency=0.7}):Play()
                 else
                     TweenService:Create(tr, TweenInfo.new(0.2), {BackgroundColor3=C.ToggleOff}):Play()
                     TweenService:Create(trs, TweenInfo.new(0.2), {Transparency=1}):Play()
-                    TweenService:Create(kn, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position=UDim2.new(0,2,0.5,-7), BackgroundColor3=C.TextDim}):Play()
+                    TweenService:Create(kn, TweenInfo.new(0.25, Enum.EasingStyle.Back), {Position=UDim2.new(0,2,0.5,-7), BackgroundColor3=C.TextDim}):Play()
                     TweenService:Create(bar, TweenInfo.new(0.2), {BackgroundTransparency=1}):Play()
                     TweenService:Create(rs, TweenInfo.new(0.2), {Transparency=1}):Play()
                 end
@@ -889,16 +971,16 @@ local function BuildUI()
         end
 
         local TABS = {
-            { key="aimbot", icon="🎯", title=T("aim_title"), sub=T("aim_sub") },
-            { key="esp", icon="👁", title=T("esp_title"), sub=T("esp_sub") },
-            { key="fps", icon="⚡", title=T("fps_title"), sub=T("fps_sub") },
-            { key="visual", icon="✨", title=T("vis_title"), sub=T("vis_sub") },
-            { key="mira", icon="⊕", title=T("mira_title"), sub=T("mira_sub") },
-            { key="ia", icon="🤖", title=T("ia_title"), sub=T("ia_sub") },
-            { key="bypass", icon="🚪", title=T("bypass_title"), sub=T("bypass_sub") },
-            { key="smart", icon="🧠", title=T("smart_title"), sub=T("smart_sub") },
-            { key="save", icon="💾", title=T("save_title"), sub=T("save_sub") },
-            { key="config", icon="⚙", title=T("config_title"), sub=T("config_sub") }
+            { icon="🎯", title=T("aim_title"), sub=T("aim_sub") },
+            { icon="👁", title=T("esp_title"), sub=T("esp_sub") },
+            { icon="⚡", title=T("fps_title"), sub=T("fps_sub") },
+            { icon="✨", title=T("vis_title"), sub=T("vis_sub") },
+            { icon="⊕", title=T("mira_title"), sub=T("mira_sub") },
+            { icon="🤖", title=T("ia_title"), sub=T("ia_sub") },
+            { icon="🚪", title=T("bypass_title"), sub=T("bypass_sub") },
+            { icon="🧠", title=T("smart_title"), sub=T("smart_sub") },
+            { icon="💾", title=T("save_title"), sub=T("save_sub") },
+            { icon="⚙", title=T("config_title"), sub=T("config_sub") }
         }
 
         local PG={}
@@ -909,7 +991,6 @@ local function BuildUI()
             Connect(la:GetPropertyChangedSignal("AbsoluteContentSize"),function() p.CanvasSize=UDim2.new(0,0,0,la.AbsoluteContentSize.Y+16) end)
         end
 
-        -- ABA AIMBOT
         UI.Section(PG[1], T("section_general"))
         UI.TG(PG[1],T("aim_assist"),T("aim_assist_desc"),"AimAssist")
         UI.TG(PG[1],T("aim_legit"),"Mira suave com humanização","LegitAim")
@@ -924,7 +1005,6 @@ local function BuildUI()
         UI.TG(PG[1],T("aim_los"),T("aim_los_desc"),"LOSCheck")
         UI.TG(PG[1],T("aim_predict"),"Prever movimento","AutoPredict")
 
-        -- ABA ESP
         UI.Section(PG[2], "Master")
         UI.TG(PG[2],T("esp_master"),T("esp_master_desc"),"ESP")
         UI.TG(PG[2],T("esp_highlight"),"Brilho no corpo","ESP_Highlight")
@@ -934,35 +1014,26 @@ local function BuildUI()
         UI.TG(PG[2],T("esp_dist"),"Distância até o alvo","ESP_Dist")
         UI.SL(PG[2],T("esp_transparency"),0,100,"ESP_Transparency")
 
-        -- ABA FPS
         UI.Section(PG[3], T("section_perf"))
         UI.DP(PG[3],T("fps_preset"),{"Low","Medium","High","Extreme"},"FPSPreset", function(v) SmartBoost:Mode_(v) end)
         UI.TG(PG[3],T("fps_monitor"),T("fps_monitor_desc"),"FPSMonitor", function(v) FH.Visible=v end)
         UI.TG(PG[3],T("fps_potato"),T("fps_potato_desc"),"PotatoColorful", function(v) 
-            if v then 
-                SmartBoost:Mode_("EXTREME")
-                local t=Workspace:FindFirstChildOfClass("Terrain"); if t then t.Decoration=false end 
-                local cc=Lighting:FindFirstChild("VoidSat"); if not cc then cc=Instance.new("ColorCorrectionEffect"); cc.Name="VoidSat"; cc.Parent=Lighting end 
-                cc.Saturation=2.5; cc.Enabled=true 
-            else SmartBoost:Restore() end 
+            if v then SmartBoost:Mode_("EXTREME"); local t=Workspace:FindFirstChildOfClass("Terrain"); if t then t.Decoration=false end; local cc=Lighting:FindFirstChild("VoidSat"); if not cc then cc=Instance.new("ColorCorrectionEffect"); cc.Name="VoidSat"; cc.Parent=Lighting end; cc.Saturation=2.5; cc.Enabled=true else SmartBoost:Restore() end 
         end)
         UI.Section(PG[3], "Ajustes")
         UI.SL(PG[3],T("fps_stretch"),40,120,"StretchFOV", function(v) Camera.FieldOfView=v end)
         UI.SL(PG[3],T("fps_render"),100,3000,"RenderDistance", function(v) if v>=3000 then Lighting.FogStart=0; Lighting.FogEnd=100000 else Lighting.FogStart=v*0.8; Lighting.FogEnd=v end end)
         UI.SL(PG[3],T("fps_sat"),0,300,"Saturation", function(v) local cc=Lighting:FindFirstChild("VoidSat") if not cc then cc=Instance.new("ColorCorrectionEffect"); cc.Name="VoidSat"; cc.Parent=Lighting end cc.Saturation=v/100; cc.Enabled=true end)
 
-        -- ABA VISUAL
         UI.Section(PG[4], "Iluminação")
         UI.TG(PG[4],T("vis_fullbright"),T("vis_fullbright_desc"),"Fullbright", function(v) Lighting.Brightness=v and 3 or 1 end)
         UI.TG(PG[4],T("vis_fog"),T("vis_fog_desc"),"RemoveFog", function(v) Lighting.FogEnd=v and 100000 or 1000 end)
 
-        -- ABA MIRA
         UI.Section(PG[5], "Crosshair")
         UI.TG(PG[5],T("mira_crosshair"),"Ativa mira customizada","Crosshair")
         UI.DP(PG[5],T("mira_style"),{"+","•","⨁","🎯","✛"},"CH_Style")
         UI.SL(PG[5],T("mira_size"),10,100,"CH_Size")
 
-        -- ABA IA
         local CS=Instance.new("ScrollingFrame",PG[6]); CS.Size=UDim2.new(1,-10,0,190); CS.BackgroundColor3=C.Panel; CS.BackgroundTransparency=0.3; CS.ScrollBarThickness=3; CS.ScrollBarImageColor3=C.Accent; CS.BorderSizePixel=0; Utils.Corner(CS,8); CS.ZIndex=6
         local CL=Instance.new("UIListLayout",CS); CL.Padding=UDim.new(0,4); Connect(CL:GetPropertyChangedSignal("AbsoluteContentSize"),function() CS.CanvasSize=UDim2.new(0,0,0,CL.AbsoluteContentSize.Y+8) end)
         local function AM(text, isUser)
@@ -976,7 +1047,6 @@ local function BuildUI()
         local SNB=Instance.new("TextButton",PG[6]); SNB.Size=UDim2.new(0,60,0,34); SNB.BackgroundColor3=C.Accent; SNB.Text=T("ia_send"); SNB.TextColor3=C.Text; SNB.Font=Enum.Font.GothamBold; SNB.TextSize=10; Utils.Corner(SNB,8); SNB.Position=UDim2.new(1,-64,0,198); SNB.ZIndex=10
         Connect(SNB.MouseButton1Click,function() local q=IB.Text; if q=="" then return end; AM(q,true); IB.Text=""; task.wait(0.3); AM(GetAIResponse(q),false) end)
 
-        -- ABA BYPASS
         UI.BTN(PG[7], T("bypass_hide"), C.Accent, Min)
         local KillB = UI.BTN(PG[7], T("bypass_kill"), C.Danger, nil)
         local confirmKill=false
@@ -990,12 +1060,10 @@ local function BuildUI()
             ActiveConnections={}; if SG then SG:Destroy() end
         end)
 
-        -- ABA SMART
         UI.Section(PG[8], "Inteligência")
         UI.TG(PG[8],T("smart_aim"),T("smart_aim_desc"),"SmartAim", function(v) SmartAim.Enabled=v end)
         UI.TG(PG[8],T("smart_boost"),T("smart_boost_desc"),"SmartBoost", function(v) SmartBoost.Enabled=v end)
 
-        -- ABA SAVE
         UI.BTN(PG[9], T("save_save"), C.Accent, function()
             local ok=SaveSystem:Save()
             Toast(ok and T("save_saved") or T("save_error"), "Configurações salvas", ok and "success" or "error")
@@ -1005,7 +1073,6 @@ local function BuildUI()
             Toast(ok and T("save_loaded") or T("save_error"), "Configurações carregadas", ok and "success" or "error")
         end)
 
-        -- ABA CONFIG
         local VL=Instance.new("Frame",PG[10]); VL.Size=UDim2.new(1,-10,0,44); VL.BackgroundColor3=C.Card; VL.BackgroundTransparency=0.15; VL.ZIndex=6; Utils.Corner(VL,8)
         local VLL=Instance.new("TextLabel",VL); VLL.Size=UDim2.new(0.5,-12,1,0); VLL.Position=UDim2.new(0,12,0,0); VLL.BackgroundTransparency=1; VLL.Text=T("config_version"); VLL.TextColor3=C.Text; VLL.Font=Enum.Font.GothamBold; VLL.TextSize=11; VLL.TextXAlignment=Enum.TextXAlignment.Left; VLL.ZIndex=7
         local VLV=Instance.new("TextLabel",VL); VLV.Size=UDim2.new(0.5,-12,1,0); VLV.Position=UDim2.new(0.5,0,0,0); VLV.BackgroundTransparency=1; VLV.Text="VOID HUB 7.0"; VLV.TextColor3=C.AccentLight; VLV.Font=Enum.Font.GothamBold; VLV.TextSize=11; VLV.TextXAlignment=Enum.TextXAlignment.Right; VLV.ZIndex=7
@@ -1017,7 +1084,6 @@ local function BuildUI()
         local AL=Instance.new("Frame",PG[10]); AL.Size=UDim2.new(1,-10,0,0); AL.BackgroundColor3=C.Card; AL.BackgroundTransparency=0.15; AL.AutomaticSize=Enum.AutomaticSize.Y; AL.ZIndex=6; Utils.Corner(AL,8)
         local ALT=Instance.new("TextLabel",AL); ALT.Size=UDim2.new(1,-20,0,0); ALT.Position=UDim2.new(0,10,0,10); ALT.BackgroundTransparency=1; ALT.Text=T("config_about_text"); ALT.TextColor3=C.TextDim; ALT.Font=Enum.Font.Gotham; ALT.TextSize=10; ALT.TextWrapped=true; ALT.TextXAlignment=Enum.TextXAlignment.Left; ALT.TextYAlignment=Enum.TextYAlignment.Top; ALT.AutomaticSize=Enum.AutomaticSize.Y; ALT.ZIndex=7
 
-        -- NAVEGAÇÃO
         local TB={}
         local function SwitchTab(index)
             Config.ActiveTab=index
@@ -1027,17 +1093,10 @@ local function BuildUI()
             PG[index].Position=UDim2.new(0,15,0,64); Utils.Tween(PG[index],0.25,{Position=UDim2.new(0,15,0,54)})
             for i,b in pairs(TB) do
                 local a=(i==index)
-                if a then
-                    TweenService:Create(b.f, TweenInfo.new(0.2), {BackgroundColor3=C.Card, BackgroundTransparency=0}):Play()
-                    TweenService:Create(b.l, TweenInfo.new(0.2), {TextColor3=C.Text}):Play()
-                    TweenService:Create(b.ic, TweenInfo.new(0.2), {TextColor3=C.AccentLight}):Play()
-                    TweenService:Create(b.i, TweenInfo.new(0.25, Enum.EasingStyle.Back), {Size=UDim2.new(0,3,0,20), BackgroundTransparency=0}):Play()
-                else
-                    TweenService:Create(b.f, TweenInfo.new(0.2), {BackgroundColor3=C.Panel, BackgroundTransparency=1}):Play()
-                    TweenService:Create(b.l, TweenInfo.new(0.2), {TextColor3=C.TextDim}):Play()
-                    TweenService:Create(b.ic, TweenInfo.new(0.2), {TextColor3=C.TextDim}):Play()
-                    TweenService:Create(b.i, TweenInfo.new(0.25), {Size=UDim2.new(0,3,0,0), BackgroundTransparency=0}):Play()
-                end
+                TweenService:Create(b.f, TweenInfo.new(0.2), {BackgroundColor3=a and C.Card or C.Panel, BackgroundTransparency=a and 0 or 1}):Play()
+                TweenService:Create(b.l, TweenInfo.new(0.2), {TextColor3=a and C.Text or C.TextDim}):Play()
+                TweenService:Create(b.ic, TweenInfo.new(0.2), {TextColor3=a and C.AccentLight or C.TextDim}):Play()
+                TweenService:Create(b.i, TweenInfo.new(0.25, Enum.EasingStyle.Back), {Size=UDim2.new(0,3,0,a and 20 or 0)}):Play()
             end
         end
 
@@ -1053,7 +1112,6 @@ local function BuildUI()
             Connect(f.MouseLeave, function() if Config.ActiveTab~=i then TweenService:Create(f, TweenInfo.new(0.15), {BackgroundTransparency=1}):Play(); TweenService:Create(l, TweenInfo.new(0.15), {TextColor3=C.TextDim}):Play() end end)
         end
 
-        -- DRAG
         local function MD(fr,h) 
             local d,ds,sp
             Connect(h.InputBegan,function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then d=true; ds=i.Position; sp=fr.Position end end)
@@ -1062,7 +1120,6 @@ local function BuildUI()
         end
         MD(MN,HD); MD(FB,FB); MD(FH,FH)
 
-        -- RENDER LOGIC
         local RN={Cache={}}; local jT=0; local eA=0
         
         function RN:Clear() for p,d in pairs(self.Cache) do if d.bb then d.bb:Destroy() end; if d.h then d.h:Destroy() end; self.Cache[p]=nil end end
@@ -1137,7 +1194,6 @@ local function BuildUI()
             eA=eA+dt; if eA>=1/30 then RN:UpdateESP(); eA=0 end
         end)
 
-        -- FPS MONITOR
         task.spawn(function() 
             while FH and FH.Parent do 
                 local t1=tick(); RunService.RenderStepped:Wait(); local dt=tick()-t1; local fps=math.floor(1/math.max(dt,0.001))
@@ -1156,7 +1212,6 @@ local function BuildUI()
             end 
         end)
 
-        -- X = MINIMIZAR
         Connect(BC.MouseButton1Click, Min)
         
         SwitchTab(Config.ActiveTab or 1)
